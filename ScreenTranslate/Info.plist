@@ -15,6 +15,6 @@
     <key>SUScheduledCheckInterval</key>
     <integer>86400</integer>
     <key>SUShowReleaseNotes</key>
-    <true/>
+    <false/>
 </dict>
 </plist>
