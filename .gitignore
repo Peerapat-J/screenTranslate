@@ -39,6 +39,11 @@ playground.xcworkspace
 docs/*
 
 
+# Website
+website/deploy.sh
+website/assets/
+website/.omc/
+
 # env files
 .env.gitsecret
 .env.local

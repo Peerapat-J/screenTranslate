@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "landing-page-design": {
+      "source": "inference-sh-9/skills",
+      "sourceType": "github",
+      "computedHash": "c489ece3f049aa26c78154d1f67aa5e2b8342216e5f6acf07455cba56e10c19f"
+    },
     "macos-spm-app-packaging": {
       "source": "dimillian/skills",
       "sourceType": "github",
@@ -15,6 +20,11 @@
       "source": "obra/superpowers",
       "sourceType": "github",
       "computedHash": "72e9ab72627e4fd8ed26a582e82309a98ecdc4f6e1c99418430ac05682c9e91d"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
     }
   }
 }
