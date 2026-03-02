@@ -66,6 +66,9 @@ jobs:
 
     # 7. Archive 빌드
     - name: Archive
+      env:
+        APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+        APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
       run: |
         xcodebuild archive \
           -project ScreenTranslate.xcodeproj \
@@ -74,6 +77,9 @@ jobs:
           -destination 'generic/platform=macOS' \
           -archivePath $RUNNER_TEMP/ScreenTranslate.xcarchive \
           -allowProvisioningUpdates \
+          -authenticationKeyPath ~/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8 \
+          -authenticationKeyID "$APPLE_API_KEY_ID" \
+          -authenticationKeyIssuerID "$APPLE_API_ISSUER_ID" \
           MARKETING_VERSION=${{ steps.version.outputs.VERSION }}
 
     # 8. Export (Developer ID 서명)
