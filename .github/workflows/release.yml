@@ -71,10 +71,10 @@ jobs:
           -project ScreenTranslate.xcodeproj \
           -scheme ScreenTranslate \
           -configuration Release \
+          -destination 'generic/platform=macOS' \
           -archivePath $RUNNER_TEMP/ScreenTranslate.xcarchive \
-          MARKETING_VERSION=${{ steps.version.outputs.VERSION }} \
-          CODE_SIGN_IDENTITY="Developer ID Application" \
-          CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+          -allowProvisioningUpdates \
+          MARKETING_VERSION=${{ steps.version.outputs.VERSION }}
 
     # 8. Export (Developer ID 서명)
     - name: Export archive
@@ -82,7 +82,8 @@ jobs:
         xcodebuild -exportArchive \
           -archivePath $RUNNER_TEMP/ScreenTranslate.xcarchive \
           -exportOptionsPlist ExportOptions.plist \
-          -exportPath $RUNNER_TEMP/export
+          -exportPath $RUNNER_TEMP/export \
+          -allowProvisioningUpdates
 
     # 9. 앱 코드 서명 (Hardened Runtime)
     - name: Sign app
