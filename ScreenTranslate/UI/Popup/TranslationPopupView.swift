@@ -1,0 +1,104 @@
+import SwiftUI
+
+struct TranslationPopupView: View {
+    let state: TranslationCoordinator.State
+    let onCopy: (String) -> Void
+    let onClose: () -> Void
+
+    @State private var didCopy = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            switch state {
+            case .idle:
+                EmptyView()
+
+            case .recognizing:
+                loadingView(message: "인식 중...")
+
+            case .translating:
+                loadingView(message: "번역 중...")
+
+            case .completed(let result):
+                completedView(result: result)
+
+            case .failed(let message):
+                errorView(message: message)
+            }
+
+            HStack {
+                Spacer()
+
+                if case .completed(let result) = state {
+                    Button(didCopy ? "복사됨" : "복사") {
+                        onCopy(result.text)
+                        didCopy = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            didCopy = false
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(didCopy ? .green : .accentColor)
+                }
+
+                Button("닫기") {
+                    onClose()
+                }
+                .buttonStyle(.bordered)
+                .keyboardShortcut(.cancelAction)
+            }
+        }
+        .padding(16)
+        .frame(minWidth: 280, maxWidth: 400)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(radius: 12, y: 4)
+    }
+
+    // MARK: - Subviews
+
+    private func loadingView(message: String) -> some View {
+        HStack(spacing: 8) {
+            ProgressView()
+                .controlSize(.small)
+            Text(message)
+                .font(.body)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.vertical, 20)
+    }
+
+    private func completedView(result: TranslationCoordinator.TranslationResult) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if result.lowConfidence {
+                Label("인식 정확도가 낮습니다", systemImage: "exclamationmark.triangle")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+
+            ScrollView {
+                Text(result.text)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(maxHeight: 220)
+        }
+    }
+
+    private func errorView(message: String) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+            Text(message)
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+    }
+}
