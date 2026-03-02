@@ -42,9 +42,15 @@ struct MenuBarView: View {
 
         Divider()
 
-        SettingsLink {
-            Text(L10n.settingsMenu)
+        Button(L10n.aboutApp) {
+            AppOrchestrator.shared.showAbout()
         }
+
+        Button(L10n.settingsMenu) {
+            NSApp.activate()
+            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        }
+        .keyboardShortcut(",", modifiers: .command)
 
         Divider()
 

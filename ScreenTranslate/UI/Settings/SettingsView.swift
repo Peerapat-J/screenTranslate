@@ -1,11 +1,13 @@
-import SwiftUI
 import KeyboardShortcuts
+import ServiceManagement
+import SwiftUI
 
 struct SettingsView: View {
     @State private var settings = AppSettings.shared
     @State private var packManager = LanguagePackManager()
     @State private var showDownloadAlert = false
     @State private var pendingDownloadCode: String?
+    @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
 
     var body: some View {
         Form {
@@ -15,54 +17,89 @@ struct SettingsView: View {
                     Text("한국어").tag("ko")
                 }
                 .pickerStyle(.menu)
+
+                Toggle(L10n.launchAtLogin, isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, newValue in
+                        Task {
+                            do {
+                                if newValue {
+                                    try SMAppService.mainApp.register()
+                                } else {
+                                    try await SMAppService.mainApp.unregister()
+                                }
+                            } catch {
+                                launchAtLogin = (SMAppService.mainApp.status == .enabled)
+                            }
+                        }
+                    }
             }
 
             Section(L10n.translationSection) {
-                Picker(L10n.sourceLanguageLabel, selection: $settings.sourceLanguageCode) {
-                    Text(L10n.autoDetect).tag("auto")
-                    Divider()
-                    ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
-                        Label {
-                            Text(lang.name)
-                        } icon: {
-                            sourceStatusIcon(for: lang.code)
+                HStack {
+                    Picker(L10n.sourceLanguageLabel, selection: $settings.sourceLanguageCode) {
+                        Text(L10n.autoDetect).tag("auto")
+                        Divider()
+                        ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
+                            Label {
+                                Text(lang.name)
+                            } icon: {
+                                sourceStatusIcon(for: lang.code)
+                            }
+                            .tag(lang.code)
                         }
-                        .tag(lang.code)
                     }
-                }
-                .pickerStyle(.menu)
-                .onChange(of: settings.sourceLanguageCode) { _, newValue in
-                    if newValue != "auto" {
-                        let status = packManager.sourceStatuses[newValue]
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .onChange(of: settings.sourceLanguageCode) { _, newValue in
+                        if newValue != "auto" {
+                            let status = packManager.sourceStatuses[newValue]
+                            if status == .available {
+                                pendingDownloadCode = newValue
+                                showDownloadAlert = true
+                            }
+                        }
+                        Task {
+                            await packManager.refreshStatuses(sourceCode: newValue)
+                        }
+                    }
+
+                    Button {
+                        let oldSource = settings.sourceLanguageCode
+                        let oldTarget = settings.targetLanguageCode
+                        settings.sourceLanguageCode = oldTarget
+                        settings.targetLanguageCode = oldSource
+                        Task {
+                            await packManager.refreshStatuses(sourceCode: oldTarget)
+                            await packManager.refreshSourceStatuses(targetCode: oldSource)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.left.arrow.right")
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(settings.sourceLanguageCode == "auto")
+                    .help(L10n.swapLanguages)
+
+                    Picker(L10n.targetLanguageLabel, selection: $settings.targetLanguageCode) {
+                        ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
+                            Label {
+                                Text(lang.name)
+                            } icon: {
+                                statusIcon(for: lang.code)
+                            }
+                            .tag(lang.code)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .onChange(of: settings.targetLanguageCode) { _, newValue in
+                        let status = packManager.statuses[newValue]
                         if status == .available {
                             pendingDownloadCode = newValue
                             showDownloadAlert = true
                         }
-                    }
-                    Task {
-                        await packManager.refreshStatuses(sourceCode: newValue)
-                    }
-                }
-
-                Picker(L10n.targetLanguageLabel, selection: $settings.targetLanguageCode) {
-                    ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
-                        Label {
-                            Text(lang.name)
-                        } icon: {
-                            statusIcon(for: lang.code)
+                        Task {
+                            await packManager.refreshSourceStatuses(targetCode: newValue)
                         }
-                        .tag(lang.code)
-                    }
-                }
-                .pickerStyle(.menu)
-                .onChange(of: settings.targetLanguageCode) { _, newValue in
-                    let status = packManager.statuses[newValue]
-                    if status == .available {
-                        pendingDownloadCode = newValue
-                        showDownloadAlert = true
-                    }
-                    Task {
-                        await packManager.refreshSourceStatuses(targetCode: newValue)
                     }
                 }
 

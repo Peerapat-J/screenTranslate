@@ -1,10 +1,10 @@
 import Foundation
 
 /// 앱 전체 UI 문자열의 영어/한국어 로컬라이제이션.
-/// `AppSettings.shared.appLanguage` 값에 따라 즉시 전환된다.
-enum L10n {
+/// UserDefaults에서 직접 읽어 nonisolated 컨텍스트(Error enum 등)에서도 안전하게 사용.
+nonisolated enum L10n {
     private static var lang: String {
-        AppSettings.shared.appLanguage
+        UserDefaults.standard.string(forKey: "com.screentranslate.appLanguage") ?? "en"
     }
 
     private static func s(_ en: String, ko: String) -> String {
@@ -17,8 +17,9 @@ enum L10n {
     static var recentTranslations: String { s("Recent Translations", ko: "최근 번역") }
     static var noHistory: String { s("No history", ko: "히스토리 없음") }
     static var showAll: String { s("Show All...", ko: "모두 보기...") }
+    static var aboutApp: String { s("About ScreenTranslate", ko: "ScreenTranslate 정보") }
     static var settingsMenu: String { s("Settings...", ko: "설정...") }
-    static var quit: String { s("Quit ScreenTranslate", ko: "ScreenTranslate 종료") }
+    static var quit: String { s("Quit", ko: "종료") }
 
     // MARK: - Popup
 
@@ -43,6 +44,8 @@ enum L10n {
     static var translationEngine: String { s("Translation Engine", ko: "번역 엔진") }
     static var shortcutSection: String { s("Shortcut", ko: "단축키") }
     static var translationShortcut: String { s("Translation Shortcut", ko: "번역 단축키") }
+    static var swapLanguages: String { s("Swap Languages", ko: "언어 교체") }
+    static var launchAtLogin: String { s("Launch at Login", ko: "로그인 시 열기") }
     static var languagePackNotInstalled: String { s("Language Pack Not Installed", ko: "언어팩 미설치") }
     static var confirm: String { s("OK", ko: "확인") }
 
