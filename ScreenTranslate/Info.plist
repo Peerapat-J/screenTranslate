@@ -14,5 +14,7 @@
     <string>6UNvbf5W5DWdM6oDjs02lEY1dib/yXb4BhYEY/FcJ0E=</string>
     <key>SUScheduledCheckInterval</key>
     <integer>86400</integer>
+    <key>SUShowReleaseNotes</key>
+    <true/>
 </dict>
 </plist>

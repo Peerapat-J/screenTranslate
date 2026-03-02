@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import CoreGraphics
 import KeyboardShortcuts
 import Observation
@@ -39,6 +40,12 @@ final class AppOrchestrator {
         userDriverDelegate: nil
     )
 
+    /// Sparkle 업데이트 확인 가능 여부 — MenuBarView/AboutView에서 버튼 비활성화에 사용
+    private(set) var canCheckForUpdates = false
+
+    @ObservationIgnored
+    private var updateCancellable: AnyCancellable?
+
     func checkForUpdates() {
         updaterController.checkForUpdates(nil)
     }
@@ -60,6 +67,12 @@ final class AppOrchestrator {
                 self?.startTranslation()
             }
         }
+
+        // Sparkle canCheckForUpdates KVO → @Observable 브리지
+        updateCancellable = updaterController.updater
+            .publisher(for: \.canCheckForUpdates)
+            .receive(on: RunLoop.main)
+            .assign(to: \.canCheckForUpdates, on: self)
     }
 
     func startTranslation() {
