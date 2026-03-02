@@ -73,6 +73,7 @@ jobs:
           -configuration Release \
           -archivePath $RUNNER_TEMP/ScreenTranslate.xcarchive \
           MARKETING_VERSION=${{ steps.version.outputs.VERSION }} \
+          CODE_SIGN_IDENTITY="Developer ID Application" \
           CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 
     # 8. Export (Developer ID 서명)
