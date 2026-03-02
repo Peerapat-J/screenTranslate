@@ -37,9 +37,9 @@ nonisolated enum L10n {
     static var generalSection: String { s("General", ko: "일반") }
     static var appLanguageLabel: String { s("App Language", ko: "앱 언어") }
     static var translationSection: String { s("Translation", ko: "번역") }
-    static var sourceLanguageLabel: String { s("Source Language", ko: "원문 언어") }
+    static var sourceLanguageLabel: String { s("Source", ko: "원문") }
     static var autoDetect: String { s("Auto Detect", ko: "자동 감지") }
-    static var targetLanguageLabel: String { s("Target Language", ko: "번역 결과 언어") }
+    static var targetLanguageLabel: String { s("Target", ko: "번역") }
     static var ocrEngine: String { s("OCR Engine", ko: "OCR 엔진") }
     static var translationEngine: String { s("Translation Engine", ko: "번역 엔진") }
     static var shortcutSection: String { s("Shortcut", ko: "단축키") }
@@ -48,10 +48,13 @@ nonisolated enum L10n {
     static var launchAtLogin: String { s("Launch at Login", ko: "로그인 시 열기") }
     static var languagePackNotInstalled: String { s("Language Pack Not Installed", ko: "언어팩 미설치") }
     static var confirm: String { s("OK", ko: "확인") }
+    static var download: String { s("Download", ko: "다운로드") }
+    static var downloading: String { s("Downloading...", ko: "다운로드 중...") }
+    static var later: String { s("Later", ko: "나중에") }
 
     static func languagePackMessage(name: String) -> String {
-        s("\(name) language pack is not installed yet.\nIt will be downloaded automatically when you first translate with this language.",
-          ko: "\(name) 언어팩이 아직 설치되지 않았습니다.\n해당 언어로 처음 번역할 때 시스템에서 자동으로 다운로드됩니다.")
+        s("\(name) language pack is not installed.\nWould you like to download it now?",
+          ko: "\(name) 언어팩이 설치되지 않았습니다.\n지금 다운로드할까요?")
     }
 
     // MARK: - History

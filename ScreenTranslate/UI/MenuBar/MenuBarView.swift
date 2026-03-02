@@ -47,8 +47,7 @@ struct MenuBarView: View {
         }
 
         Button(L10n.settingsMenu) {
-            NSApp.activate()
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            AppOrchestrator.shared.showSettings()
         }
         .keyboardShortcut(",", modifiers: .command)
 

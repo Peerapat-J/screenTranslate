@@ -1,6 +1,7 @@
 import KeyboardShortcuts
 import ServiceManagement
 import SwiftUI
+import Translation
 
 struct SettingsView: View {
     @State private var settings = AppSettings.shared
@@ -8,6 +9,7 @@ struct SettingsView: View {
     @State private var showDownloadAlert = false
     @State private var pendingDownloadCode: String?
     @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
+    @State private var isDownloading = false
 
     var body: some View {
         Form {
@@ -35,72 +37,74 @@ struct SettingsView: View {
             }
 
             Section(L10n.translationSection) {
-                HStack {
-                    Picker(L10n.sourceLanguageLabel, selection: $settings.sourceLanguageCode) {
-                        Text(L10n.autoDetect).tag("auto")
-                        Divider()
-                        ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
-                            Label {
-                                Text(lang.name)
-                            } icon: {
-                                sourceStatusIcon(for: lang.code)
-                            }
-                            .tag(lang.code)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
-                    .onChange(of: settings.sourceLanguageCode) { _, newValue in
-                        if newValue != "auto" {
-                            let status = packManager.sourceStatuses[newValue]
-                            if status == .available {
-                                pendingDownloadCode = newValue
-                                showDownloadAlert = true
+                HStack(spacing: 10) {
+                    HStack(spacing: 4) {
+                        Text(L10n.sourceLanguageLabel)
+                            .foregroundStyle(.secondary)
+                        Picker(L10n.sourceLanguageLabel, selection: $settings.sourceLanguageCode) {
+                            Text(L10n.autoDetect).tag("auto")
+                            Divider()
+                            ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
+                                Label {
+                                    Text(lang.name)
+                                } icon: {
+                                    languageStatusIcon(for: lang.code)
+                                }
+                                .tag(lang.code)
                             }
                         }
-                        Task {
-                            await packManager.refreshStatuses(sourceCode: newValue)
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .onChange(of: settings.sourceLanguageCode) { _, newValue in
+                            if newValue != "auto" {
+                                let status = packManager.languageStatuses[newValue]
+                                if status == .available {
+                                    pendingDownloadCode = newValue
+                                    showDownloadAlert = true
+                                }
+                            }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
 
                     Button {
                         let oldSource = settings.sourceLanguageCode
                         let oldTarget = settings.targetLanguageCode
                         settings.sourceLanguageCode = oldTarget
                         settings.targetLanguageCode = oldSource
-                        Task {
-                            await packManager.refreshStatuses(sourceCode: oldTarget)
-                            await packManager.refreshSourceStatuses(targetCode: oldSource)
-                        }
                     } label: {
                         Image(systemName: "arrow.left.arrow.right")
+                            .font(.caption)
                     }
-                    .buttonStyle(.borderless)
+                    .controlSize(.small)
+                    .buttonStyle(.bordered)
                     .disabled(settings.sourceLanguageCode == "auto")
                     .help(L10n.swapLanguages)
 
-                    Picker(L10n.targetLanguageLabel, selection: $settings.targetLanguageCode) {
-                        ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
-                            Label {
-                                Text(lang.name)
-                            } icon: {
-                                statusIcon(for: lang.code)
+                    HStack(spacing: 4) {
+                        Text(L10n.targetLanguageLabel)
+                            .foregroundStyle(.secondary)
+                        Picker(L10n.targetLanguageLabel, selection: $settings.targetLanguageCode) {
+                            ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
+                                Label {
+                                    Text(lang.name)
+                                } icon: {
+                                    languageStatusIcon(for: lang.code)
+                                }
+                                .tag(lang.code)
                             }
-                            .tag(lang.code)
+                        }
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .onChange(of: settings.targetLanguageCode) { _, newValue in
+                            let status = packManager.languageStatuses[newValue]
+                            if status == .available {
+                                pendingDownloadCode = newValue
+                                showDownloadAlert = true
+                            }
                         }
                     }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
-                    .onChange(of: settings.targetLanguageCode) { _, newValue in
-                        let status = packManager.statuses[newValue]
-                        if status == .available {
-                            pendingDownloadCode = newValue
-                            showDownloadAlert = true
-                        }
-                        Task {
-                            await packManager.refreshSourceStatuses(targetCode: newValue)
-                        }
-                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
                 Picker(L10n.ocrEngine, selection: $settings.ocrProviderName) {
@@ -121,61 +125,75 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(
-            minWidth: 450, idealWidth: 500, maxWidth: 600,
-            minHeight: 320, idealHeight: 380, maxHeight: 500
-        )
+        .frame(width: 520)
+        .fixedSize(horizontal: false, vertical: true)
         .task {
-            await packManager.refreshStatuses(sourceCode: settings.sourceLanguageCode)
-            await packManager.refreshSourceStatuses(targetCode: settings.targetLanguageCode)
+            await packManager.refreshAllStatuses()
         }
         .alert(L10n.languagePackNotInstalled, isPresented: $showDownloadAlert) {
-            Button(L10n.confirm) {}
-                .keyboardShortcut(.defaultAction)
+            Button(L10n.download) {
+                isDownloading = true
+                Task {
+                    // 미설치 언어를 이미 설치된 언어와 쌍으로 구성하여 다운로드.
+                    // 설치된 쪽은 시스템이 스킵하므로 미설치 언어만 실제 다운로드된다.
+                    let downloadCode = pendingDownloadCode ?? settings.targetLanguageCode
+                    let installedRef = packManager.findInstalledLanguage(excluding: downloadCode) ?? "en"
+
+                    let source: Locale.Language
+                    let target: Locale.Language
+                    if downloadCode == settings.sourceLanguageCode {
+                        source = Locale.Language(identifier: downloadCode)
+                        target = Locale.Language(identifier: installedRef)
+                    } else {
+                        source = Locale.Language(identifier: installedRef)
+                        target = Locale.Language(identifier: downloadCode)
+                    }
+
+                    do {
+                        _ = try await TranslationBridge.shared.translate(
+                            text: " ", from: source, to: target
+                        )
+                    } catch {
+                        // 다운로드 프롬프트 표시 후 실패해도 상태 갱신
+                    }
+                    await packManager.refreshAllStatuses()
+                    isDownloading = false
+                }
+            }
+            .keyboardShortcut(.defaultAction)
+            Button(L10n.later, role: .cancel) {}
         } message: {
             if let code = pendingDownloadCode,
                let name = AppSettings.supportedLanguages.first(where: { $0.code == code })?.name {
                 Text(L10n.languagePackMessage(name: name))
             }
         }
-    }
-
-    // MARK: - 상태 아이콘
-
-    @ViewBuilder
-    private func statusIcon(for code: String) -> some View {
-        switch packManager.statuses[code] {
-        case .installed:
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
-        case .available:
-            Image(systemName: "arrow.down.circle")
-                .foregroundStyle(.orange)
-        case .checking:
-            ProgressView()
-                .controlSize(.small)
-                .frame(width: 16, height: 16)
-        case .unsupported:
-            Image(systemName: "xmark.circle")
-                .foregroundStyle(.secondary)
-        case .none:
-            EmptyView()
+        .overlay {
+            if isDownloading {
+                VStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.large)
+                    Text(L10n.downloading)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.ultraThinMaterial)
+            }
         }
     }
 
+    // MARK: - 상태 아이콘 (개별 언어 기준)
+
     @ViewBuilder
-    private func sourceStatusIcon(for code: String) -> some View {
-        switch packManager.sourceStatuses[code] {
+    private func languageStatusIcon(for code: String) -> some View {
+        switch packManager.languageStatuses[code] {
         case .installed:
             Image(systemName: "checkmark.circle.fill")
                 .foregroundStyle(.green)
         case .available:
             Image(systemName: "arrow.down.circle")
                 .foregroundStyle(.orange)
-        case .checking:
-            ProgressView()
-                .controlSize(.small)
-                .frame(width: 16, height: 16)
         case .unsupported:
             Image(systemName: "xmark.circle")
                 .foregroundStyle(.secondary)

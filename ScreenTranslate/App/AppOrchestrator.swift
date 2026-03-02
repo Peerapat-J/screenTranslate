@@ -177,6 +177,32 @@ final class AppOrchestrator {
         }
     }
 
+    // MARK: - 설정 윈도우
+
+    private var settingsWindow: NSWindow?
+
+    func showSettings() {
+        if let existing = settingsWindow, existing.isVisible {
+            existing.makeKeyAndOrderFront(nil)
+            NSApp.activate()
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: .zero,
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = L10n.settingsMenu.replacingOccurrences(of: "...", with: "")
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.contentView = NSHostingView(rootView: SettingsView())
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate()
+        self.settingsWindow = window
+    }
+
     // MARK: - About 윈도우
 
     private var aboutWindow: NSWindow?
