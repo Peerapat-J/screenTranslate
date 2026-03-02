@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-03
+
+### Added
+- TelemetryDeck SDK 통합 (프라이버시 중심 사용자 분석)
+  - `appLaunched` 시그널 (DAU/MAU 산출)
+  - `translationCompleted` 시그널 (기능 사용률)
+- Google Analytics 4 다운로드 클릭 이벤트 추적
+- 웹사이트 SEO 최적화 (Open Graph, Twitter Card, JSON-LD, sitemap.xml)
+- 웹사이트 GEO 최적화 (llms.txt, llms-full.txt — AI 검색 엔진 대응)
+- CI에서 latest DMG 자동 복사 (안정적 다운로드 URL)
+
+### Fixed
+- CI archive 서명 오류 수정 (API Key 인증 플래그 추가)
+- Xcode 16.4 동시성 에러 수정 (AppOrchestrator @MainActor 추가)
+
 ## [1.0.0] - 2026-03-03
 
 ### Added
