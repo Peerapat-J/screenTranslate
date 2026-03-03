@@ -147,6 +147,20 @@ final class AppSettings {
         }
     }
 
+    // MARK: - Advanced
+
+    var ocrTextPreprocessing: Bool {
+        get {
+            access(keyPath: \.ocrTextPreprocessing)
+            return UserDefaults.standard.object(forKey: "com.screentranslate.ocrTextPreprocessing") as? Bool ?? true
+        }
+        set {
+            withMutation(keyPath: \.ocrTextPreprocessing) {
+                UserDefaults.standard.set(newValue, forKey: "com.screentranslate.ocrTextPreprocessing")
+            }
+        }
+    }
+
     // MARK: - Computed Helpers
 
     var sourceLanguage: Locale.Language? {

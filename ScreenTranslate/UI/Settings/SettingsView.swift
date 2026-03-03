@@ -244,6 +244,17 @@ struct SettingsView: View {
             Section(L10n.shortcutSection) {
                 KeyboardShortcuts.Recorder(L10n.translationShortcut, name: .translate)
             }
+
+            Section(L10n.advancedSection) {
+                Toggle(isOn: $settings.ocrTextPreprocessing) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.ocrTextPreprocessing)
+                        Text(L10n.ocrTextPreprocessingDesc)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
         }
         .formStyle(.grouped)
         .frame(width: 480)
