@@ -200,6 +200,83 @@
     </div>
 </section>
 
+<!-- Live Comparison -->
+<section class="engines-section comparison-live">
+    <div class="container">
+        <h2 data-i18n="engines.live.title">See the Difference</h2>
+        <p class="byok-desc" data-i18n="engines.live.subtitle">Same sentence, four engines. See how each one translates differently.</p>
+
+        <div class="cl-controls">
+            <div class="cl-lang-select">
+                <label data-i18n="engines.live.direction">Direction</label>
+                <select id="cl-lang">
+                    <optgroup label="English →" data-i18n-label="engines.live.groupForward">
+                        <option value="ko">EN → 한국어</option>
+                        <option value="ja">EN → 日本語</option>
+                        <option value="zh-Hans">EN → 中文(简体)</option>
+                        <option value="zh-Hant">EN → 中文(繁體)</option>
+                        <option value="fr">EN → Français</option>
+                        <option value="de">EN → Deutsch</option>
+                        <option value="es">EN → Español</option>
+                        <option value="pt">EN → Português</option>
+                        <option value="it">EN → Italiano</option>
+                        <option value="ru">EN → Русский</option>
+                        <option value="ar">EN → العربية</option>
+                    </optgroup>
+                    <optgroup label="→ English" data-i18n-label="engines.live.groupReverse">
+                        <option value="rev-ko">한국어 → EN</option>
+                        <option value="rev-ja">日本語 → EN</option>
+                        <option value="rev-zh-Hans">中文(简体) → EN</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="cl-tabs" id="cl-tabs">
+                <button class="cl-tab active" data-idx="0" data-i18n="engines.live.tab1">Idiom</button>
+                <button class="cl-tab" data-idx="1" data-i18n="engines.live.tab2">UI Text</button>
+                <button class="cl-tab" data-idx="2" data-i18n="engines.live.tab3">Casual</button>
+            </div>
+        </div>
+
+        <div class="cl-original" id="cl-original"></div>
+
+        <div class="cl-results" id="cl-results">
+            <div class="cl-card cl-card-default">
+                <div class="cl-card-header">
+                    <span class="cl-engine-icon">🍎</span>
+                    <span class="cl-engine-name">Apple Translation</span>
+                    <span class="cl-card-badge" data-i18n="engines.live.default">Default</span>
+                    <span class="cl-card-tag cl-tag-green" data-i18n="engines.live.ondevice">On-device</span>
+                </div>
+                <p class="cl-card-text" id="cl-apple"></p>
+            </div>
+            <div class="cl-card">
+                <div class="cl-card-header">
+                    <span class="cl-engine-icon">🔵</span>
+                    <span class="cl-engine-name">DeepL</span>
+                    <span class="cl-card-tag" data-i18n="engines.live.cloud">Cloud</span>
+                </div>
+                <p class="cl-card-text" id="cl-deepl"></p>
+            </div>
+            <div class="cl-card">
+                <div class="cl-card-header">
+                    <span class="cl-engine-icon">🟢</span>
+                    <span class="cl-engine-name">Google Cloud</span>
+                    <span class="cl-card-tag" data-i18n="engines.live.cloud">Cloud</span>
+                </div>
+                <p class="cl-card-text" id="cl-google"></p>
+            </div>
+            <div class="cl-card">
+                <div class="cl-card-header">
+                    <span class="cl-engine-icon">🟠</span>
+                    <span class="cl-engine-name">Microsoft Azure</span>
+                    <span class="cl-card-tag" data-i18n="engines.live.cloud">Cloud</span>
+                </div>
+                <p class="cl-card-text" id="cl-azure"></p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- CTA -->
 <section class="engines-cta">
     <div class="container">
