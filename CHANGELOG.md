@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-03-04
+
+### Added
+
+- OCR paragraph break detection (preserves paragraph structure in multi-paragraph text)
+
+### Improved
+
+- Popup UX: auto-copy feedback, drag position retention, accessibility support, precise text height measurement
+
+### Changed
+
+- License changed from MIT to GPL v3
+- Updated README with BYOK engine info and revised project description
+- Removed unnecessary files from git tracking (website, local scripts)
+- Public CHANGELOG converted to English
+
 ## [1.2.0] - 2026-03-04
 
 ### Added
