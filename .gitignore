@@ -42,6 +42,9 @@ docs/*
 # Website
 website/
 
+# Scripts (배포/릴리스 스크립트)
+scripts/
+
 # env files
 .env.gitsecret
 .env.local
