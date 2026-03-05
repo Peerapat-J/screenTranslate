@@ -35,7 +35,7 @@ Powered by Apple Vision OCR. On-device by default, with optional cloud engines.
 
 ## How It Works
 
-1. **Press shortcut** — Hit `Ctrl + Shift + T` (customizable) to enter selection mode
+1. **Press shortcut** — Hit `Cmd + Shift + T` (customizable) to enter selection mode
 2. **Drag to select** — Draw a rectangle around the text you want to translate
 3. **Read translation** — Translation appears in a popup near your selection
 
@@ -91,7 +91,7 @@ Build and run with Xcode 16+.
 
 1. Launch ScreenTranslate — it appears in your **menu bar**
 2. Grant **Screen Recording** permission when prompted (System Settings → Privacy & Security)
-3. Press `Ctrl + Shift + T` and drag over any text on screen
+3. Press `Cmd + Shift + T` and drag over any text on screen
 4. The translation popup appears instantly
 
 ### Changing Languages
