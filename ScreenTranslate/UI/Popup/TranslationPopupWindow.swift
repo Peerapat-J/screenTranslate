@@ -123,19 +123,25 @@ final class TranslationPopupWindow: NSPanel {
         if userDidResize { return }
 
         // 상단-좌측 고정: 현재 top-left 기준으로 크기만 변경
-        let newSize = calculateSize(for: state, showingOriginal: isShowingOriginal)
+        var newSize = calculateSize(for: state, showingOriginal: isShowingOriginal)
 
         // 크기 변화 없으면 프레임 업데이트 스킵 (폴링에 의한 중복 애니메이션 방지)
         if abs(newSize.width - frame.width) < 1 && abs(newSize.height - frame.height) < 1 { return }
 
+        // 상단 y좌표 (AppKit 기준)
+        let currentTopY = frame.origin.y + frame.height
         var origin = frame.origin
         let heightDiff = newSize.height - frame.height
         origin.y -= heightDiff  // AppKit 좌하단 원점 → y를 줄여야 상단 고정
 
-        // 화면 경계 클램핑
+        // 화면 경계: 하단을 넘으면 상단 위치를 유지하고 높이를 줄임
         let targetScreen = screen ?? lastScreen ?? NSScreen.main!
         let screenFrame = targetScreen.frame
-        origin.y = max(origin.y, screenFrame.minY + 8)
+        if origin.y < screenFrame.minY + 8 {
+            let maxHeight = currentTopY - (screenFrame.minY + 8)
+            newSize.height = max(minResizeHeight, maxHeight)
+            origin.y = currentTopY - newSize.height
+        }
         if origin.x + newSize.width > screenFrame.maxX - 8 {
             origin.x = screenFrame.maxX - newSize.width - 8
         }
@@ -189,12 +195,18 @@ final class TranslationPopupWindow: NSPanel {
             let newSize = NSSize(width: currentWidth, height: newHeight)
 
             // 좌상단 고정 위치 조정
+            let currentTopY = self.frame.origin.y + self.frame.height
             var origin = self.frame.origin
             origin.y -= heightDiff
 
-            // 화면 경계 클램핑
+            // 화면 경계: 하단을 넘으면 상단 위치를 유지하고 높이를 줄임
             let screen = lastScreen ?? NSScreen.main!
-            origin.y = max(origin.y, screen.frame.minY + 8)
+            var adjustedSize = newSize
+            if origin.y < screen.frame.minY + 8 {
+                let maxHeight = currentTopY - (screen.frame.minY + 8)
+                adjustedSize.height = max(minResizeHeight, maxHeight)
+                origin.y = currentTopY - adjustedSize.height
+            }
 
             isUpdatingPosition = true
             if shouldAnimate {
@@ -202,31 +214,36 @@ final class TranslationPopupWindow: NSPanel {
                     context.duration = 0.2
                     context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
                     self.animator().setFrame(
-                        NSRect(origin: origin, size: newSize),
+                        NSRect(origin: origin, size: adjustedSize),
                         display: true
                     )
                 }, completionHandler: { [weak self] in
                     self?.isUpdatingPosition = false
                 })
             } else {
-                self.setFrame(NSRect(origin: origin, size: newSize), display: true)
+                self.setFrame(NSRect(origin: origin, size: adjustedSize), display: true)
                 isUpdatingPosition = false
             }
             return
         }
 
-        let newSize = calculateSize(for: currentState, showingOriginal: showing)
+        var newSize = calculateSize(for: currentState, showingOriginal: showing)
 
         let newOrigin: NSPoint
         if userDidDrag {
             // 현재 위치 기준으로 높이만 변경 (상단 고정, 아래로 확장)
+            let currentTopY = self.frame.origin.y + self.frame.height
             var origin = self.frame.origin
             let heightDiff = newSize.height - self.frame.height
             origin.y -= heightDiff
 
-            // 화면 경계 클램핑
+            // 화면 경계: 하단을 넘으면 상단 위치를 유지하고 높이를 줄임
             let screen = lastScreen ?? NSScreen.main!
-            origin.y = max(origin.y, screen.frame.minY + 8)
+            if origin.y < screen.frame.minY + 8 {
+                let maxHeight = currentTopY - (screen.frame.minY + 8)
+                newSize.height = max(minResizeHeight, maxHeight)
+                origin.y = currentTopY - newSize.height
+            }
             origin.x = max(origin.x, screen.frame.minX + 8)
             if origin.x + newSize.width > screen.frame.maxX {
                 origin.x = screen.frame.maxX - newSize.width - 8
