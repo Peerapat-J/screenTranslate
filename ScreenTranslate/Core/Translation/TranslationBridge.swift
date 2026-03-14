@@ -85,7 +85,12 @@ final class TranslationBridge {
             } catch {
                 self.errorMessage = error.localizedDescription
                 self.isTranslating = false
-                activeContinuation.resume(throwing: TranslationError.translationFailed(error.localizedDescription))
+                if self.configuration?.source == nil {
+                    // 자동 감지 모드에서 실패 — 짧은 텍스트 등으로 언어 판별 불가
+                    activeContinuation.resume(throwing: TranslationError.autoDetectFailed(error.localizedDescription))
+                } else {
+                    activeContinuation.resume(throwing: TranslationError.translationFailed(error.localizedDescription))
+                }
             }
         }
     }

@@ -177,7 +177,10 @@ final class TranslationPopupWindow: NSPanel {
             onToggleOriginal: { [weak self] showing in
                 self?.handleToggleOriginal(showing)
             },
-            autoCopied: autoCopied
+            autoCopied: autoCopied,
+            onOpenSettings: {
+                AppOrchestrator.shared.showSettings()
+            }
         )
     }
 
@@ -330,8 +333,11 @@ final class TranslationPopupWindow: NSPanel {
 
             let height = min(max(contentHeight, 100 * fontScale), 600)
             return NSSize(width: baseWidth, height: height)
-        case .failed:
-            return NSSize(width: baseWidth, height: 180 * fontScale)
+        case .failed(let message):
+            let height: CGFloat = (message == L10n.autoDetectFailedMessage)
+                ? 220 * fontScale
+                : 180 * fontScale
+            return NSSize(width: baseWidth, height: height)
         }
     }
 

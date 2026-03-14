@@ -6,6 +6,7 @@ struct TranslationPopupView: View {
     let onClose: () -> Void
     let onToggleOriginal: (Bool) -> Void
     let autoCopied: Bool
+    var onOpenSettings: (() -> Void)? = nil
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -180,6 +181,14 @@ struct TranslationPopupView: View {
                 .font(popupFont)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+
+            if message == L10n.autoDetectFailedMessage, let onOpenSettings {
+                Button(L10n.openSettings) {
+                    onOpenSettings()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)

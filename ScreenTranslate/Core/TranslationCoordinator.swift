@@ -108,6 +108,9 @@ final class TranslationCoordinator {
                 state = .failed(L10n.noTextFound)
             } catch TranslationError.languageNotSupported {
                 state = .failed(L10n.unsupportedLanguagePair)
+            } catch TranslationError.autoDetectFailed(let underlying) {
+                logger.warning("자동 감지 번역 실패: \(underlying)")
+                state = .failed(L10n.autoDetectFailedMessage)
             } catch {
                 logger.error("번역 파이프라인 에러: \(error)")
                 state = .failed(error.localizedDescription)
@@ -148,6 +151,9 @@ final class TranslationCoordinator {
                 state = .idle
             } catch TranslationError.languageNotSupported {
                 state = .failed(L10n.unsupportedLanguagePair)
+            } catch TranslationError.autoDetectFailed(let underlying) {
+                logger.warning("자동 감지 드래그 번역 실패: \(underlying)")
+                state = .failed(L10n.autoDetectFailedMessage)
             } catch {
                 logger.error("드래그 번역 에러: \(error)")
                 state = .failed(error.localizedDescription)

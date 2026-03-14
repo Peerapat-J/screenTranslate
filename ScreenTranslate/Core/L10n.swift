@@ -300,4 +300,11 @@ nonisolated enum L10n {
     static func translationFailed(_ reason: String) -> String {
         s("Translation failed: \(reason)", ko: "번역 실패: \(reason)")
     }
+
+    static var autoDetectFailedMessage: String {
+        s("Could not detect the source language.\nFor short text, try setting the source language in Settings.",
+          ko: "원문 언어를 감지하지 못했습니다.\n짧은 텍스트의 경우, 설정에서 원문 언어를 지정해 보세요.")
+    }
+
+    static var openSettings: String { s("Open Settings", ko: "설정 열기") }
 }

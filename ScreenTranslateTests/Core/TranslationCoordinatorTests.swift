@@ -224,6 +224,52 @@ final class TranslationCoordinatorTests: XCTestCase {
         XCTAssertFalse(result.contains("\n\n"), "불릿이 아닌 하이픈은 리스트로 감지하면 안 된다")
     }
 
+    // MARK: - 자동 감지 실패
+
+    func test_process_autoDetectFailed_showsUserFriendlyMessage() async {
+        mockOCR.recognizedText = "Hi"
+        mockOCR.detectedLanguage = nil
+        mockTranslation.shouldFailAutoDetect = true
+        sut.sourceLanguage = nil
+
+        sut.startProcessing(image: makeBlankImage())
+        let state = await waitForTerminalState(sut)
+
+        if case .failed(let msg) = state {
+            XCTAssertEqual(msg, L10n.autoDetectFailedMessage)
+        } else {
+            XCTFail("자동 감지 실패 상태여야 한다: \(state)")
+        }
+    }
+
+    func test_processText_autoDetectFailed_showsUserFriendlyMessage() async {
+        mockTranslation.shouldFailAutoDetect = true
+        sut.sourceLanguage = nil
+
+        sut.startProcessing(text: "Hi")
+        let state = await waitForTerminalState(sut)
+
+        if case .failed(let msg) = state {
+            XCTAssertEqual(msg, L10n.autoDetectFailedMessage)
+        } else {
+            XCTFail("자동 감지 실패 상태여야 한다: \(state)")
+        }
+    }
+
+    func test_processText_manualLanguage_doesNotTriggerAutoDetectError() async {
+        mockTranslation.shouldFailAutoDetect = true
+        sut.sourceLanguage = Locale.Language(identifier: "en")
+
+        sut.startProcessing(text: "Hello")
+        let state = await waitForTerminalState(sut)
+
+        if case .completed = state {
+            // source가 nil이 아니므로 shouldFailAutoDetect 조건 불일치 → 성공
+        } else {
+            XCTFail("수동 언어 지정 시 정상 번역되어야 한다: \(state)")
+        }
+    }
+
     // MARK: - Helpers
 
     private func waitForTerminalState(_ coordinator: TranslationCoordinator) async -> TranslationCoordinator.State {
