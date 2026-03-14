@@ -401,24 +401,15 @@ final class TranslationPopupWindow: NSPanel {
         // 앞으로 올라올 수 있다. 다음 run loop에서 orderBack하여 되돌린다.
         // (동기 orderBack은 super.close() 후 macOS 자동 선택에 의해 무효화됨)
         DispatchQueue.main.async {
-            for window in NSApp.windows where window.isVisible
-                && window.level == .normal
-                && window.alphaValue > 0 {
-                window.orderBack(nil)
-            }
+            NSApp.orderBackAuxiliaryWindows()
         }
     }
 
     override func becomeKey() {
         super.becomeKey()
-        // 팝업이 key window가 되면 앱이 activate되어 normal-level 보조 윈도우(설정, About 등)가
-        // 다른 앱 위로 올라오는 것을 방지한다. alphaValue > 0 조건으로 TranslationBridge 윈도우 제외.
-        for window in NSApp.windows where window !== self
-            && window.isVisible
-            && window.level == .normal
-            && window.alphaValue > 0 {
-            window.orderBack(nil)
-        }
+        // 팝업이 key window가 되면 앱이 activate되어 보조 윈도우(설정, About 등)가
+        // 다른 앱 위로 올라오는 것을 방지한다.
+        NSApp.orderBackAuxiliaryWindows(excluding: self)
     }
 
     override var canBecomeKey: Bool { true }

@@ -69,12 +69,7 @@ final class SelectionOverlayWindow: NSWindow {
         makeKeyAndOrderFront(nil)
 
         // 앱 활성화 시 보조 윈도우(설정, About 등)가 다른 앱 위로 올라오는 것을 방지
-        for window in NSApp.windows where window !== self
-            && window.isVisible
-            && window.level == .normal
-            && window.alphaValue > 0 {
-            window.orderBack(nil)
-        }
+        NSApp.orderBackAuxiliaryWindows(excluding: self)
     }
 
     // ESC 키 처리 — AppKit 레벨 (SwiftUI onKeyPress는 포커스 필요)
