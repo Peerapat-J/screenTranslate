@@ -168,8 +168,7 @@ final class TranslationPopupWindow: NSPanel {
         TranslationPopupView(
             state: state,
             onCopy: { text in
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(text, forType: .string)
+                Clipboard.copy(text)
             },
             onClose: { [weak self] in
                 self?.close()

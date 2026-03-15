@@ -182,8 +182,7 @@ final class AppOrchestrator {
                     targetLanguageCode: coordinator.targetLanguage.minimalIdentifier
                 )
                 if AppSettings.shared.autoCopyToClipboard {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(result.translatedText, forType: .string)
+                    Clipboard.copy(result.translatedText)
                     popup.autoCopied = true
                     popup.updateState(state, near: rect, on: currentScreen)
                 }
