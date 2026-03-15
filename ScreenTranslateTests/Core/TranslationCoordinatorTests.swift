@@ -270,6 +270,37 @@ final class TranslationCoordinatorTests: XCTestCase {
         }
     }
 
+    // MARK: - AsyncStream
+
+    func test_stateStream_yieldsStateChanges() async {
+        mockTranslation.translatedText = "번역됨"
+
+        var receivedStates: [TranslationCoordinator.State] = []
+        let expectation = XCTestExpectation(description: "stateStream completes")
+
+        let task = Task {
+            for await state in sut.stateStream {
+                receivedStates.append(state)
+                if case .completed = state { break }
+            }
+            expectation.fulfill()
+        }
+
+        // 약간의 지연 후 번역 시작 (스트림 구독 완료 대기)
+        try? await Task.sleep(for: .milliseconds(10))
+        sut.startProcessing(text: "Hello")
+
+        await fulfillment(of: [expectation], timeout: 5)
+        task.cancel()
+
+        // idle(초기) → translating → completed 순서
+        XCTAssertTrue(receivedStates.contains(where: { $0 == .translating }))
+        XCTAssertTrue(receivedStates.contains(where: {
+            if case .completed = $0 { return true }
+            return false
+        }))
+    }
+
     // MARK: - Helpers
 
     private func waitForTerminalState(_ coordinator: TranslationCoordinator) async -> TranslationCoordinator.State {

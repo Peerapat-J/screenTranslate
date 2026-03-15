@@ -9,7 +9,27 @@ private let logger = Logger(subsystem: "com.app.screentranslate", category: "tra
 /// OCRProvider와 TranslationProvider를 주입받아 사용한다.
 @MainActor @Observable
 final class TranslationCoordinator {
-    var state: State = .idle
+    var state: State = .idle {
+        didSet {
+            guard oldValue != state else { return }  // 동일 값 재할당 시 중복 yield 방지
+            stateContinuation?.yield(state)
+        }
+    }
+
+    /// 외부 관찰자가 상태 변경을 수신하는 스트림.
+    /// willSet에서 이전 continuation을 finish()하여 레이스 컨디션을 방지한다.
+    private var stateContinuation: AsyncStream<State>.Continuation? {
+        willSet {
+            stateContinuation?.finish()
+        }
+    }
+
+    var stateStream: AsyncStream<State> {
+        AsyncStream(bufferingPolicy: .bufferingNewest(10)) { continuation in
+            self.stateContinuation = continuation
+            continuation.yield(state)
+        }
+    }
 
     /// H4: 진행 중인 Task 참조를 보관하여 ESC 취소를 지원한다.
     private var currentTask: Task<Void, Never>?
