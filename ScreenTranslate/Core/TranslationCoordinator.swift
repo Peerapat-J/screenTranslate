@@ -7,7 +7,7 @@ private let logger = Logger(subsystem: "com.app.screentranslate", category: "tra
 
 /// OCR → Translation 데이터 파이프라인 상태 머신.
 /// OCRProvider와 TranslationProvider를 주입받아 사용한다.
-@Observable
+@MainActor @Observable
 final class TranslationCoordinator {
     var state: State = .idle
 
