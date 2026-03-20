@@ -17,6 +17,7 @@ final class AppOrchestrator {
 
     private var overlayWindow: SelectionOverlayWindow?
     private var popupWindow: TranslationPopupWindow?
+    private var quickTranslateWindow: QuickTranslateWindow?
     private let capturer = ScreenCapturer()
     private var currentScreen: NSScreen?
 
@@ -81,6 +82,7 @@ final class AppOrchestrator {
     func updateTranslationProvider() {
         let provider = TranslationProviderFactory.make(name: AppSettings.shared.translationProviderName)
         coordinator.updateProvider(provider)
+        quickTranslateWindow?.updateTranslationProvider()
     }
 
     func setup() {
@@ -98,6 +100,12 @@ final class AppOrchestrator {
         KeyboardShortcuts.onKeyUp(for: .dragTranslate) { [weak self] in
             Task { @MainActor in
                 self?.startDragTranslation()
+            }
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .quickTranslate) { [weak self] in
+            Task { @MainActor in
+                self?.toggleQuickTranslate()
             }
         }
 
@@ -149,6 +157,18 @@ final class AppOrchestrator {
         processingTask = Task { @MainActor in
             await processDragTranslation()
         }
+    }
+
+    func toggleQuickTranslate() {
+        if let existing = quickTranslateWindow, existing.isVisible {
+            existing.hidePanel()
+            return
+        }
+
+        if quickTranslateWindow == nil {
+            quickTranslateWindow = QuickTranslateWindow()
+        }
+        quickTranslateWindow?.showPanel()
     }
 
     /// 진행 중인 번역 작업을 취소하고 팝업을 닫는다.
