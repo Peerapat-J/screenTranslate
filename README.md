@@ -53,6 +53,10 @@ Screen capture with OCR, or select text and translate directly. On-device by def
 
 ### Quick Translate
 
+<div align="center">
+<img src="https://screentranslate.filient.ai/assets/quick-translation.png" alt="Quick Translate" width="400">
+</div>
+
 1. **Press shortcut** — Hit `Cmd + Shift + E` (customizable) to open the mini translation panel
 2. **Type text** — Enter the text you want to translate
 3. **Press Enter** — Translation appears below. Use `Shift + Enter` for new lines
