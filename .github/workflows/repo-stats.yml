@@ -1,0 +1,19 @@
+name: GitHub Repo Stats
+
+on:
+  schedule:
+    # 매일 UTC 03:00 (KST 12:00)에 실행
+    - cron: "0 3 * * *"
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  repo-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run github-repo-stats
+        uses: jgehrcke/github-repo-stats@v1
+        with:
+          ghtoken: ${{ secrets.GITHUB_TOKEN }}
+          repository: hcmhcs/screenTranslate
