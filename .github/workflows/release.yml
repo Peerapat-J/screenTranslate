@@ -242,7 +242,13 @@ jobs:
 
         echo "ED_SIGNATURE=$ED_SIGNATURE" >> $GITHUB_OUTPUT
 
-    # 15. Oracle Cloud에 업로드
+    # 15. Python 설정 (awscli + appcast 스크립트용)
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    # 16. Oracle Cloud에 업로드
     - name: Upload to Oracle Cloud
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.ORACLE_ACCESS_KEY_ID }}
@@ -272,12 +278,7 @@ jobs:
           --endpoint-url="$STORAGE_ENDPOINT" \
           --content-type "application/x-apple-diskimage"
 
-    # 16. Appcast XML 갱신
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
+    # 16-2. Appcast XML 갱신
     - name: Update appcast.xml
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.ORACLE_ACCESS_KEY_ID }}
@@ -289,7 +290,7 @@ jobs:
         AWS_REQUEST_CHECKSUM_CALCULATION: when_required
         AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
       run: |
-        pip install boto3
+        pip3 install boto3
         # CHANGELOG.md에서 Highlights만 추출 (Sparkle 업데이트 창용)
         RELEASE_NOTES=$(./scripts/extract_changelog.sh "${{ steps.version.outputs.VERSION }}" --highlights 2>/dev/null || echo "")
         RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.VERSION }}"
