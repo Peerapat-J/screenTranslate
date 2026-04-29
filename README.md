@@ -1,4 +1,4 @@
-# ScreenTranslate
+# LinguistOnScreen
 
 Personal-use macOS screen translation app.
 
